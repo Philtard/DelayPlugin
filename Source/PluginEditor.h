@@ -20,8 +20,12 @@ private:
                                      juce::Slider::TextEntryBoxPosition::TextBoxBelow};
     juce::Slider delay_time_slider_ {juce::Slider::SliderStyle::Rotary,
                                      juce::Slider::TextEntryBoxPosition::TextBoxBelow};
+    juce::Slider feedback_delay_gain_slider_ {
+        juce::Slider::SliderStyle::Rotary,
+        juce::Slider::TextEntryBoxPosition::TextBoxBelow};
     juce::Label ui_title_ {"ui_title_label", "Delay"};
 
     std::unique_ptr<SliderAttachment> delay_gain_slider_attachment_;
     std::unique_ptr<SliderAttachment> delay_time_slider_attachment_;
+    std::unique_ptr<SliderAttachment> feedback_delay_gain_slider_attachment_;
 };

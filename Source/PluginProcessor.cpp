@@ -6,6 +6,7 @@ DelayProcessor::DelayProcessor()
 {
     delay_gain_ = apvts_.getRawParameterValue("delay_gain");
     delay_time_ = apvts_.getRawParameterValue("delay_time");
+    feedback_delay_gain_ = apvts_.getRawParameterValue("feedback_delay_gain");
 }
 
 void DelayProcessor::prepareToPlay(double sampleRate, int blockSize)
@@ -97,19 +98,32 @@ void DelayProcessor::feedbackDelay(int channel,
                                    const int delayBufferLength,
                                    float* dryBuffer)
 {
+    const float feedbackDelayGain = feedback_delay_gain_->load();
     if (delayBufferLength > bufferLength + mWritePosition_)
     {
-        mDelayBuffer_.addFromWithRamp(
-            channel, mWritePosition_, dryBuffer, bufferLength, 0.8, 0.8);
+        mDelayBuffer_.addFromWithRamp(channel,
+                                      mWritePosition_,
+                                      dryBuffer,
+                                      bufferLength,
+                                      feedbackDelayGain,
+                                      feedbackDelayGain);
     }
     else
     {
         const int bufferRemaining = delayBufferLength - mWritePosition_;
 
-        mDelayBuffer_.addFromWithRamp(
-            channel, bufferRemaining, dryBuffer, bufferRemaining, 0.8, 0.8);
-        mDelayBuffer_.addFromWithRamp(
-            channel, 0, dryBuffer, bufferLength - bufferRemaining, 0.8, 0.8);
+        mDelayBuffer_.addFromWithRamp(channel,
+                                      bufferRemaining,
+                                      dryBuffer,
+                                      bufferRemaining,
+                                      feedbackDelayGain,
+                                      feedbackDelayGain);
+        mDelayBuffer_.addFromWithRamp(channel,
+                                      0,
+                                      dryBuffer,
+                                      bufferLength - bufferRemaining,
+                                      feedbackDelayGain,
+                                      feedbackDelayGain);
     }
 }
 
@@ -131,6 +145,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout DelayProcessor::createParame
         "delay_gain", "Delay Gain", 0, 1, 0.8));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "delay_time", "Delay Time ms", 1, 2000, 40));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "feedback_delay_gain", "Feedback Delay Gain", 0, 1, 0.8));
 
     return {params.begin(), params.end()};
 }

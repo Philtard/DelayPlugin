@@ -57,6 +57,7 @@ private:
     juce::AudioProcessorValueTreeState apvts_;
     std::atomic<float>* delay_gain_;
     std::atomic<float>* delay_time_;
+    std::atomic<float>* feedback_delay_gain_;
 
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
 
